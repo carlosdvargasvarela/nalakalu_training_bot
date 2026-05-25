@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+dotenv.config({ path: resolve(dirname(fileURLToPath(import.meta.url)), "../../../.env") });
 import Fastify from "fastify";
 import multipart from "@fastify/multipart";
 import { chatRoutes } from "./routes/chat.js";

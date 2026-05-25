@@ -1,6 +1,8 @@
+import dotenv from "dotenv";
 import { readFileSync, readdirSync } from "fs";
-import { join, dirname } from "path";
+import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+dotenv.config({ path: resolve(dirname(fileURLToPath(import.meta.url)), "../../../.env") });
 import { getDb } from "./client.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
