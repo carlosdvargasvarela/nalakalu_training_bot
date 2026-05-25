@@ -1,0 +1,57 @@
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("../mcp-client.js", () => ({
+  getDocumentsClient: vi.fn().mockResolvedValue({
+    callTool: vi.fn().mockResolvedValue({
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+            answer: "El ensamble del cajón tipo B requiere 3 pasos...",
+            references: [{ documentId: "doc-1", section: "P-047" }],
+          }),
+        },
+      ],
+    }),
+  }),
+  getWorkersClient: vi.fn().mockResolvedValue({
+    callTool: vi.fn().mockResolvedValue({
+      content: [{ type: "text", text: JSON.stringify({ id: "sess-1", workerId: null }) }],
+    }),
+  }),
+}));
+
+import Fastify from "fastify";
+import { chatRoutes } from "../routes/chat.js";
+
+const app = Fastify({ logger: false });
+app.register(chatRoutes, { prefix: "/api" });
+await app.ready();
+
+describe("POST /api/chat", () => {
+  it("retorna respuesta y referencias del documento", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/chat",
+      payload: { message: "¿Cómo ensamblo el cajón tipo B?", sessionId: "sess-1" },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.answer).toContain("cajón tipo B");
+    expect(body.references).toHaveLength(1);
+    expect(body.sessionId).toBe("sess-1");
+  });
+
+  it("crea nueva sesión si no se pasa sessionId", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/chat",
+      payload: { message: "Hola" },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.sessionId).toBe("sess-1");
+  });
+});
