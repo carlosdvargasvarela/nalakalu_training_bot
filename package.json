@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
+    "build": "npm run build -w @nalakalu/db && npm run build -w @nalakalu/mcp-documents && npm run build -w @nalakalu/mcp-workers && npm run build -w @nalakalu/mcp-admin && npm run build -w @nalakalu/gateway",
     "dev": "concurrently \"npm run dev -w gateway\" \"npm run dev -w frontend\"",
     "test": "npm run test --workspaces --if-present",
     "db:migrate": "npm run migrate -w @nalakalu/db"

@@ -12,7 +12,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "fastify": "^4.25.0",
-    "@fastify/multipart": "^8.1.0",
+    "@fastify/multipart": "^7.7.0",
     "@nalakalu/db": "*",
     "@nalakalu/mcp-documents": "*"
   },
