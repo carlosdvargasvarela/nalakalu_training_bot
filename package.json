@@ -1,0 +1,14 @@
+{
+  "name": "nalakalu",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w gateway\" \"npm run dev -w frontend\"",
+    "test": "npm run test --workspaces --if-present",
+    "db:migrate": "npm run migrate -w @nalakalu/db"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "typescript": "^5.3.0"
+  }
+}
