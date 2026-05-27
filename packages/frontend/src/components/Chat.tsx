@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import MessageBubble from "./MessageBubble";
+import MessageBubble, { LoadingBubble } from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import TagChips from "./TagChips";
 import UpdateBanner from "./UpdateBanner";
@@ -160,13 +160,7 @@ export default function Chat() {
               textLarge={textSize === "lg"}
             />
           ))}
-          {loading && (
-            <div className="flex justify-start mb-3">
-              <div className="bg-slate-700 text-slate-400 rounded-2xl rounded-bl-sm px-4 py-3 text-base">
-                Buscando en procedimientos...
-              </div>
-            </div>
-          )}
+          {loading && <LoadingBubble />}
           {/* Botón de favorito para última respuesta del bot */}
           {!loading && lastAssistantIdx > 0 && (
             <div className="flex justify-start px-1 -mt-2 mb-2">
