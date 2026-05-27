@@ -8,10 +8,16 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { searchProcedures, getDocument, listCategories } from "./tools.js";
+import {
+  searchProcedures,
+  getDocument,
+  listCategories,
+  listTags,
+  getRecentUpdates,
+} from "./tools.js";
 
 const server = new Server(
-  { name: "nalakalu-documents-mcp", version: "0.1.0" },
+  { name: "nalakalu-documents-mcp", version: "0.2.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -22,7 +28,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       description: "Busca en los procedimientos de la empresa y responde preguntas",
       inputSchema: {
         type: "object",
-        properties: { query: { type: "string", description: "Pregunta del trabajador" } },
+        properties: {
+          query: { type: "string", description: "Pregunta del trabajador" },
+          tags: {
+            type: "array",
+            items: { type: "string" },
+            description: "Filtrar por tags (opcional)",
+          },
+        },
         required: ["query"],
       },
     },
@@ -40,6 +53,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       description: "Lista las categorías de procedimientos disponibles",
       inputSchema: { type: "object", properties: {} },
     },
+    {
+      name: "list_tags",
+      description: "Lista todos los tags únicos de procedimientos activos",
+      inputSchema: { type: "object", properties: {} },
+    },
+    {
+      name: "get_recent_updates",
+      description: "Retorna procedimientos actualizados recientemente",
+      inputSchema: {
+        type: "object",
+        properties: {
+          since_hours: {
+            type: "number",
+            description: "Cuántas horas hacia atrás revisar (default 24)",
+          },
+        },
+      },
+    },
   ],
 }));
 
@@ -47,7 +78,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   if (name === "search_procedures") {
-    const result = await searchProcedures(args!.query as string);
+    const result = await searchProcedures(
+      args!.query as string,
+      args?.tags as string[] | undefined
+    );
     return { content: [{ type: "text", text: JSON.stringify(result) }] };
   }
 
@@ -59,6 +93,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (name === "list_categories") {
     const categories = await listCategories();
     return { content: [{ type: "text", text: JSON.stringify(categories) }] };
+  }
+
+  if (name === "list_tags") {
+    const tags = await listTags();
+    return { content: [{ type: "text", text: JSON.stringify(tags) }] };
+  }
+
+  if (name === "get_recent_updates") {
+    const docs = await getRecentUpdates(args?.since_hours as number | undefined);
+    return { content: [{ type: "text", text: JSON.stringify(docs) }] };
   }
 
   throw new Error(`Tool desconocida: ${name}`);
