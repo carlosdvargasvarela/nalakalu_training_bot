@@ -8,3 +8,4 @@ dist/
 graphify-out/
 caddy_data/
 caddy_config/
+*.db

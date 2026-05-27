@@ -13,8 +13,9 @@ vi.mock("pdf-parse", () => ({
 vi.mock("@nalakalu/db", () => ({
   getDb: () => ({
     query: vi.fn()
-      .mockResolvedValueOnce({ rows: [{ id: "doc-uuid-1" }] }) // INSERT RETURNING
-      .mockResolvedValueOnce({ rows: [] }),                      // UPDATE abacus_doc_id
+      .mockResolvedValueOnce({ rows: [] })                        // UPDATE soft-replace
+      .mockResolvedValueOnce({ rows: [{ id: "doc-uuid-1" }] })   // INSERT RETURNING
+      .mockResolvedValueOnce({ rows: [] }),                        // UPDATE abacus_doc_id
   }),
 }));
 
