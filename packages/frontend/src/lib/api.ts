@@ -13,12 +13,18 @@ export interface ChatMessage {
 
 export async function sendMessage(
   message: string,
-  sessionId: string | null
-): Promise<{ answer: string; references: Reference[]; sessionId: string }> {
+  sessionId: string | null,
+  tagContext?: string[]
+): Promise<{
+  answer: string;
+  references: Reference[];
+  sessionId: string;
+  tagFallback: boolean;
+}> {
   const res = await fetch(`${GATEWAY}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, sessionId }),
+    body: JSON.stringify({ message, sessionId, tag_context: tagContext }),
   });
   if (!res.ok) throw new Error("Error al contactar el servidor");
   return res.json();
@@ -29,4 +35,31 @@ export async function getDocumentUrl(id: string): Promise<string> {
   if (!res.ok) throw new Error("Documento no encontrado");
   const data = await res.json();
   return data.downloadUrl;
+}
+
+export async function fetchTags(): Promise<string[]> {
+  try {
+    const res = await fetch(`${GATEWAY}/api/chat/tags`);
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+export interface RecentUpdate {
+  id: string;
+  originalName: string;
+  tags: string[];
+  updatedAt: string;
+}
+
+export async function fetchRecentUpdates(): Promise<RecentUpdate[]> {
+  try {
+    const res = await fetch(`${GATEWAY}/api/chat/recent-updates`);
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
 }
