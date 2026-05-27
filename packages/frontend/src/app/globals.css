@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg-app:        #0f172a;
+  --bg-surface:    #1e293b;
+  --bg-elevated:   #293548;
+  --bg-input:      #334155;
+  --border:        #334155;
+  --text-primary:  #f1f5f9;
+  --text-muted:    #94a3b8;
+  --text-disabled: #475569;
+  --accent:        #3b82f6;
+  --accent-hover:  #2563eb;
+  --user-bubble:   #1d4ed8;
+}
