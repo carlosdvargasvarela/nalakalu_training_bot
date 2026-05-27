@@ -92,7 +92,7 @@ export default function AdminPage() {
           />
           <button
             onClick={handleLogin}
-            className="w-full bg-blue-600 text-white rounded-xl py-3 font-semibold hover:bg-blue-500"
+            className="w-full bg-accent text-white rounded-xl py-3 font-semibold hover:bg-accent-hover"
           >
             Entrar
           </button>

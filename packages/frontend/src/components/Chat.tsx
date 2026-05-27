@@ -130,21 +130,21 @@ export default function Chat() {
             <button
               onClick={() => setShowHistory(true)}
               className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-elevated transition-colors"
-              title="Historial"
+              aria-label="Historial"
             >
               <Clock size={18} />
             </button>
             <button
               onClick={() => setShowFavorites(true)}
               className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-elevated transition-colors"
-              title="Favoritos"
+              aria-label="Favoritos"
             >
               <Star size={18} />
             </button>
             <button
               onClick={handleToggleTextSize}
               className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-elevated transition-colors"
-              title="Tamaño de texto"
+              aria-label="Tamaño de texto"
             >
               <Type size={18} />
             </button>
