@@ -8,6 +8,7 @@ interface DocMeta {
   id: string;
   originalName: string;
   category: string | null;
+  tags: string[];
   createdAt: string;
 }
 
@@ -17,6 +18,7 @@ export default function AdminPage() {
   const [docs, setDocs] = useState<DocMeta[]>([]);
   const [uploading, setUploading] = useState(false);
   const [category, setCategory] = useState("");
+  const [tags, setTags] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const authHeaders = () => ({ "x-admin-secret": secret });
@@ -46,7 +48,10 @@ export default function AdminPage() {
     setUploading(true);
     const form = new FormData();
     form.append("file", file);
-    const url = `${GATEWAY}/api/admin/documents${category ? `?category=${encodeURIComponent(category)}` : ""}`;
+    const params = new URLSearchParams();
+    if (category) params.set("category", category);
+    if (tags) params.set("tags", tags);
+    const url = `${GATEWAY}/api/admin/documents${params.toString() ? `?${params.toString()}` : ""}`;
     const res = await fetch(url, {
       method: "POST",
       headers: authHeaders(),
@@ -57,6 +62,7 @@ export default function AdminPage() {
       await loadDocs();
       if (fileRef.current) fileRef.current.value = "";
       setCategory("");
+      setTags("");
     } else {
       alert("Error al subir archivo");
     }
@@ -109,6 +115,13 @@ export default function AdminPage() {
           className="w-full bg-slate-700 text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
+          type="text"
+          placeholder="Etiquetas: ensamble, seguridad, cajón (separadas por coma)"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          className="w-full bg-slate-700 text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
           ref={fileRef}
           type="file"
           accept=".pdf,.doc,.docx"
@@ -132,6 +145,18 @@ export default function AdminPage() {
             <div>
               <p className="text-white font-medium">{doc.originalName}</p>
               <p className="text-slate-400 text-sm">{doc.category ?? "Sin categoría"}</p>
+              {doc.tags && doc.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {doc.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="text-xs bg-slate-700 text-slate-400 rounded-full px-2 py-0.5"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               onClick={() => handleDelete(doc.id)}
