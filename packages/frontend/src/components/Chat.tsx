@@ -179,7 +179,7 @@ export default function Chat() {
             <div className="flex justify-start px-1 -mt-2 mb-2">
               <button
                 onClick={handleFavoriteStar}
-                className="text-slate-500 hover:text-yellow-400 text-sm transition-colors"
+                className="text-muted hover:text-yellow-400 text-sm transition-colors"
                 title="Guardar en favoritos"
               >
                 ☆ Guardar respuesta
