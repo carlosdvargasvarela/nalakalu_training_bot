@@ -7,6 +7,7 @@ import TagChips from "./TagChips";
 import UpdateBanner from "./UpdateBanner";
 import FavoritesDrawer from "./FavoritesDrawer";
 import HistoryDrawer from "./HistoryDrawer";
+import { Clock, Star, Type } from "lucide-react";
 import {
   sendMessage,
   fetchTags,
@@ -107,33 +108,45 @@ export default function Chat() {
 
   return (
     <>
-      <div className="flex flex-col h-screen bg-slate-900">
+      <div className="flex flex-col h-screen bg-app">
         {/* Header */}
-        <div className="flex items-center px-4 py-3 bg-slate-800 border-b border-slate-700">
-          <div className="flex-1 text-center">
-            <h1 className="text-white font-bold text-lg leading-tight">Asistente de Procedimientos</h1>
+        <div className="flex items-center gap-3 px-4 py-3 bg-surface border-b border-nk-border">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <h1 className="text-white font-bold text-base leading-tight whitespace-nowrap">Nalakalu</h1>
+            {activeTag && (
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 text-accent text-xs font-medium">
+                {activeTag}
+                <button
+                  onClick={() => setActiveTag(null)}
+                  className="hover:text-white leading-none"
+                  aria-label={`Quitar filtro ${activeTag}`}
+                >
+                  ×
+                </button>
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setShowHistory(true)}
-              className="text-slate-400 hover:text-white text-sm px-2 py-1"
+              className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-elevated transition-colors"
               title="Historial"
             >
-              🕐
+              <Clock size={18} />
             </button>
             <button
               onClick={() => setShowFavorites(true)}
-              className="text-slate-400 hover:text-white text-sm px-2 py-1"
+              className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-elevated transition-colors"
               title="Favoritos"
             >
-              ★
+              <Star size={18} />
             </button>
             <button
               onClick={handleToggleTextSize}
-              className="text-slate-400 hover:text-white text-sm px-2 py-1"
+              className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-elevated transition-colors"
               title="Tamaño de texto"
             >
-              {textSize === "base" ? "A+" : "A-"}
+              <Type size={18} />
             </button>
           </div>
         </div>
