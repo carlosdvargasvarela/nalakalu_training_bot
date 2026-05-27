@@ -79,8 +79,8 @@ export default function AdminPage() {
 
   if (!authed) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="bg-slate-800 p-6 rounded-2xl w-full max-w-sm">
+      <div className="min-h-screen bg-app flex items-center justify-center p-4">
+        <div className="bg-surface p-6 rounded-2xl w-full max-w-sm">
           <h1 className="text-white text-xl font-bold mb-4 text-center">Panel Admin</h1>
           <input
             type="password"
@@ -88,7 +88,7 @@ export default function AdminPage() {
             value={secret}
             onChange={(e) => setSecret(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            className="w-full bg-slate-700 text-white rounded-xl px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-elevated text-white rounded-xl px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             onClick={handleLogin}
@@ -102,30 +102,30 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-app p-4 max-w-2xl mx-auto">
       <h1 className="text-white text-2xl font-bold mb-6">Gestión de Procedimientos</h1>
 
-      <div className="bg-slate-800 rounded-2xl p-4 mb-6">
+      <div className="bg-surface rounded-2xl p-4 mb-6">
         <h2 className="text-white font-semibold mb-3">Subir nuevo procedimiento</h2>
         <input
           type="text"
           placeholder="Categoría (ej: Ensamble, Seguridad)"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full bg-slate-700 text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-elevated text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-accent"
         />
         <input
           type="text"
           placeholder="Etiquetas: ensamble, seguridad, cajón (separadas por coma)"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
-          className="w-full bg-slate-700 text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-elevated text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-accent"
         />
         <input
           ref={fileRef}
           type="file"
           accept=".pdf,.doc,.docx"
-          className="w-full text-slate-300 mb-3"
+          className="w-full text-primary mb-3"
         />
         <button
           onClick={handleUpload}
@@ -140,17 +140,17 @@ export default function AdminPage() {
         {docs.map((doc) => (
           <div
             key={doc.id}
-            className="bg-slate-800 rounded-xl p-4 flex items-center justify-between"
+            className="bg-surface rounded-xl p-4 flex items-center justify-between"
           >
             <div>
               <p className="text-white font-medium">{doc.originalName}</p>
-              <p className="text-slate-400 text-sm">{doc.category ?? "Sin categoría"}</p>
+              <p className="text-muted text-sm">{doc.category ?? "Sin categoría"}</p>
               {doc.tags && doc.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
                   {doc.tags.map((t) => (
                     <span
                       key={t}
-                      className="text-xs bg-slate-700 text-slate-400 rounded-full px-2 py-0.5"
+                      className="text-xs bg-elevated text-muted rounded-full px-2 py-0.5"
                     >
                       {t}
                     </span>
@@ -167,7 +167,7 @@ export default function AdminPage() {
           </div>
         ))}
         {docs.length === 0 && (
-          <p className="text-slate-500 text-center py-8">
+          <p className="text-muted text-center py-8">
             No hay procedimientos cargados aún.
           </p>
         )}
