@@ -37,6 +37,7 @@ COPY packages/gateway/package.json ./packages/gateway/
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=builder /app/packages/db/migrations ./packages/db/migrations
 COPY --from=builder /app/packages/mcp-documents/dist ./packages/mcp-documents/dist
 COPY --from=builder /app/packages/mcp-workers/dist ./packages/mcp-workers/dist
 COPY --from=builder /app/packages/mcp-admin/dist ./packages/mcp-admin/dist
