@@ -2,8 +2,33 @@ import { getDb } from "@nalakalu/db";
 import { queryAbacus, AbacusQueryResult } from "./abacus.js";
 import { getPresignedUrl } from "./r2.js";
 
+interface DocRow {
+  id: string;
+  original_name: string;
+  category: string | null;
+  content: string;
+}
+
 export async function searchProcedures(query: string): Promise<AbacusQueryResult> {
-  return queryAbacus(query);
+  const db = getDb();
+
+  // Full-text search in Spanish; fallback to recent docs if no match
+  const { rows } = await db.query<DocRow>(
+    `SELECT id, original_name, category, coalesce(content, '') AS content
+     FROM documents
+     WHERE active = TRUE
+       AND content IS NOT NULL
+     ORDER BY
+       ts_rank(
+         to_tsvector('spanish', coalesce(content, '')),
+         plainto_tsquery('spanish', $1)
+       ) DESC,
+       created_at DESC
+     LIMIT 4`,
+    [query]
+  );
+
+  return queryAbacus(query, rows);
 }
 
 export async function getDocument(id: string): Promise<{

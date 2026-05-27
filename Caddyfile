@@ -1,0 +1,8 @@
+{$DOMAIN} {
+    handle /api/* {
+        reverse_proxy gateway:3001
+    }
+    handle {
+        reverse_proxy frontend:3000
+    }
+}

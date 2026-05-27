@@ -1,54 +1,49 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock global fetch
-const mockFetch = vi.fn();
-vi.stubGlobal("fetch", mockFetch);
+// vi.hoisted evita el problema de hoisting con variables referenciadas en vi.mock
+const mockCreate = vi.hoisted(() => vi.fn());
 
-import { queryAbacus, indexDocument } from "../abacus.js";
+vi.mock("@anthropic-ai/sdk", () => ({
+  default: vi.fn().mockImplementation(() => ({
+    messages: { create: mockCreate },
+  })),
+}));
 
-describe("abacus client", () => {
+import { queryAbacus } from "../abacus.js";
+
+const mockDocs = [
+  {
+    id: "doc-1",
+    original_name: "P-047 Ensamble cajón",
+    category: "Ensamble",
+    content: "El cajón tipo B se ensambla en 3 pasos: paso 1...",
+  },
+];
+
+describe("queryAbacus (Claude)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.ABACUS_API_KEY = "test-key";
-    process.env.ABACUS_DEPLOYMENT_ID = "test-deployment";
-    process.env.ABACUS_DEPLOYMENT_TOKEN = "test-token";
+    process.env.ANTHROPIC_API_KEY = "test-key";
   });
 
-  it("queryAbacus calls the deployment API and returns answer + sources", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        result: {
-          answer: "El cajón tipo B se ensambla en 3 pasos...",
-          references: [{ documentId: "doc-123", section: "Procedimiento P-047" }],
-        },
-      }),
+  it("llama a Claude y devuelve respuesta + referencias", async () => {
+    mockCreate.mockResolvedValueOnce({
+      content: [{ type: "text", text: "El cajón tipo B se ensambla en 3 pasos..." }],
     });
 
-    const result = await queryAbacus("¿Cómo ensamblo el cajón tipo B?");
+    const result = await queryAbacus("¿Cómo ensamblo el cajón tipo B?", mockDocs);
 
     expect(result.answer).toContain("cajón tipo B");
     expect(result.references).toHaveLength(1);
-    expect(result.references[0].documentId).toBe("doc-123");
+    expect(result.references[0].documentId).toBe("doc-1");
+    expect(mockCreate).toHaveBeenCalledOnce();
   });
 
-  it("indexDocument returns the abacusDocId on success", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ result: { docId: "abacus-doc-456" } }),
-    });
+  it("devuelve mensaje de sin resultados cuando no hay documentos", async () => {
+    const result = await queryAbacus("pregunta sin docs", []);
 
-    const docId = await indexDocument("proc-123", "Procedimiento de ensamble...");
-    expect(docId).toBe("abacus-doc-456");
-  });
-
-  it("queryAbacus throws on API error", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-      text: async () => "Internal Server Error",
-    });
-
-    await expect(queryAbacus("pregunta")).rejects.toThrow("AbacusAI error 500");
+    expect(result.answer).toContain("No encontré");
+    expect(result.references).toHaveLength(0);
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 });

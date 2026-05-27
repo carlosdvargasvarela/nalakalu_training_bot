@@ -3,12 +3,14 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 dotenv.config({ path: resolve(dirname(fileURLToPath(import.meta.url)), "../../../.env") });
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import { chatRoutes } from "./routes/chat.js";
 import { adminRoutes } from "./routes/admin.js";
 
 const app = Fastify({ logger: true });
 
+await app.register(cors, { origin: true });
 await app.register(multipart);
 
 app.register(chatRoutes, { prefix: "/api" });

@@ -1,0 +1,46 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY packages/db/package.json ./packages/db/
+COPY packages/mcp-documents/package.json ./packages/mcp-documents/
+COPY packages/mcp-workers/package.json ./packages/mcp-workers/
+COPY packages/mcp-admin/package.json ./packages/mcp-admin/
+COPY packages/gateway/package.json ./packages/gateway/
+
+RUN npm ci
+
+COPY packages/db ./packages/db
+COPY packages/mcp-documents ./packages/mcp-documents
+COPY packages/mcp-workers ./packages/mcp-workers
+COPY packages/mcp-admin ./packages/mcp-admin
+COPY packages/gateway ./packages/gateway
+
+RUN npm run build -w @nalakalu/db && \
+    npm run build -w @nalakalu/mcp-documents && \
+    npm run build -w @nalakalu/mcp-workers && \
+    npm run build -w @nalakalu/mcp-admin && \
+    npm run build -w @nalakalu/gateway
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package.json package-lock.json ./
+COPY packages/db/package.json ./packages/db/
+COPY packages/mcp-documents/package.json ./packages/mcp-documents/
+COPY packages/mcp-workers/package.json ./packages/mcp-workers/
+COPY packages/mcp-admin/package.json ./packages/mcp-admin/
+COPY packages/gateway/package.json ./packages/gateway/
+
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=builder /app/packages/mcp-documents/dist ./packages/mcp-documents/dist
+COPY --from=builder /app/packages/mcp-workers/dist ./packages/mcp-workers/dist
+COPY --from=builder /app/packages/mcp-admin/dist ./packages/mcp-admin/dist
+COPY --from=builder /app/packages/gateway/dist ./packages/gateway/dist
+
+EXPOSE 3001
+CMD ["node", "packages/gateway/dist/index.js"]

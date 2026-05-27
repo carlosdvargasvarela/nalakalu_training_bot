@@ -4,3 +4,7 @@ dist/
 .next/
 .superpowers/
 *.log
+*.tsbuildinfo
+graphify-out/
+caddy_data/
+caddy_config/

@@ -29,7 +29,7 @@ export async function adminRoutes(app: FastifyInstance) {
   );
 
   app.post("/documents", { preHandler: requireAdmin }, async (request, reply) => {
-    const data = await request.file();
+    const data = await request.file({ limits: { fileSize: 20 * 1024 * 1024 } });
     if (!data) return reply.status(400).send({ error: "Archivo requerido" });
 
     const buffer = await data.toBuffer();
