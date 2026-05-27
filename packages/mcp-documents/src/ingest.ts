@@ -9,6 +9,7 @@ export interface IngestInput {
   contentType: string;
   category?: string;
   uploadedBy?: string;
+  tags?: string[];
 }
 
 export interface IngestResult {
@@ -52,16 +53,24 @@ async function extractText(buffer: Buffer, contentType: string, filename: string
 export async function ingestDocument(input: IngestInput): Promise<IngestResult> {
   const db = getDb();
   const r2Key = `docs/${randomUUID()}-${input.filename}`;
+  const tags = input.tags ?? [];
 
   await uploadToR2(r2Key, input.buffer, input.contentType);
 
   const textContent = await extractText(input.buffer, input.contentType, input.filename);
 
+  // Soft-replace: desactivar versión anterior si existe
+  await db.query(
+    "UPDATE documents SET active = FALSE WHERE original_name = $1 AND active = TRUE",
+    [input.filename]
+  );
+
   const { rows } = await db.query<{ id: string }>(
-    `INSERT INTO documents (filename, original_name, category, r2_key, uploaded_by, content)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO documents
+       (filename, original_name, category, r2_key, uploaded_by, content, tags, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
      RETURNING id`,
-    [r2Key, input.filename, input.category ?? null, r2Key, input.uploadedBy ?? null, textContent]
+    [r2Key, input.filename, input.category ?? null, r2Key, input.uploadedBy ?? null, textContent, tags]
   );
   const docId = rows[0].id;
 
