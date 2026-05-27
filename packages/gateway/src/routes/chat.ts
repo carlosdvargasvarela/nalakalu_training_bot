@@ -4,6 +4,7 @@ import { getDocumentsClient, getWorkersClient } from "../mcp-client.js";
 interface ChatBody {
   message: string;
   sessionId?: string;
+  tag_context?: string[];
 }
 
 type McpTextContent = { type: string; text: string };
@@ -15,7 +16,7 @@ function parseToolResult(result: unknown): string {
 
 export async function chatRoutes(app: FastifyInstance) {
   app.post<{ Body: ChatBody }>("/chat", async (request, reply) => {
-    const { message, sessionId } = request.body;
+    const { message, sessionId, tag_context } = request.body;
 
     const workersClient = await getWorkersClient();
     let currentSessionId = sessionId;
@@ -26,16 +27,41 @@ export async function chatRoutes(app: FastifyInstance) {
     }
 
     const docsClient = await getDocumentsClient();
+    const searchArgs: Record<string, unknown> = { query: message };
+    if (tag_context && tag_context.length > 0) {
+      searchArgs.tags = tag_context;
+    }
+
     const searchResult = await docsClient.callTool({
       name: "search_procedures",
-      arguments: { query: message },
+      arguments: searchArgs,
     });
-    const { answer, references } = JSON.parse(parseToolResult(searchResult)) as {
+    const parsed = JSON.parse(parseToolResult(searchResult)) as {
       answer: string;
       references: unknown[];
+      tagFallback?: boolean;
     };
 
-    reply.send({ answer, references, sessionId: currentSessionId });
+    reply.send({
+      answer: parsed.answer,
+      references: parsed.references,
+      sessionId: currentSessionId,
+      tagFallback: parsed.tagFallback ?? false,
+    });
+  });
+
+  app.get("/chat/tags", async (_request, reply) => {
+    const docsClient = await getDocumentsClient();
+    const result = await docsClient.callTool({ name: "list_tags", arguments: {} });
+    const tags = JSON.parse(parseToolResult(result)) as string[];
+    reply.send(tags);
+  });
+
+  app.get("/chat/recent-updates", async (_request, reply) => {
+    const docsClient = await getDocumentsClient();
+    const result = await docsClient.callTool({ name: "get_recent_updates", arguments: {} });
+    const updates = JSON.parse(parseToolResult(result)) as unknown[];
+    reply.send(updates);
   });
 
   app.get<{ Params: { id: string } }>("/chat/document/:id", async (request, reply) => {

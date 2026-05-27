@@ -10,6 +10,14 @@ function parseToolResult(result: unknown): string {
   return ((result as McpResult).content[0] as McpTextContent).text;
 }
 
+function parseTags(raw: string | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
+}
+
 export async function adminRoutes(app: FastifyInstance) {
   app.get("/documents", { preHandler: requireAdmin }, async (request, reply) => {
     const adminClient = await getAdminClient();
@@ -33,12 +41,14 @@ export async function adminRoutes(app: FastifyInstance) {
     if (!data) return reply.status(400).send({ error: "Archivo requerido" });
 
     const buffer = await data.toBuffer();
+    const query = request.query as Record<string, string>;
     const result = await ingestDocument({
       filename: data.filename,
       buffer,
       contentType: data.mimetype,
-      category: (request.query as Record<string, string>).category,
+      category: query.category,
       uploadedBy: request.headers["x-user"] as string | undefined,
+      tags: parseTags(query.tags),
     });
 
     reply.status(201).send(result);
