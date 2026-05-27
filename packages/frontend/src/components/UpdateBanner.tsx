@@ -1,5 +1,6 @@
 "use client";
 
+import { Bell, X } from "lucide-react";
 import { dismissBannerToday } from "@/lib/localStorage";
 import type { RecentUpdate } from "@/lib/api";
 
@@ -23,14 +24,15 @@ export default function UpdateBanner({ updates, onDismiss }: Props) {
   };
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-amber-900/40 border-b border-amber-700/50 text-amber-200 text-sm">
-      <span className="flex-1">📋 {label}</span>
+    <div className="flex items-center gap-2 px-4 py-2 bg-amber-900/30 border-b border-amber-600/50 text-amber-200 text-sm">
+      <Bell size={14} className="flex-shrink-0 text-amber-400" />
+      <span className="flex-1">{label}</span>
       <button
         onClick={handleDismiss}
-        className="text-amber-400 hover:text-amber-200 font-bold text-base leading-none"
+        className="p-0.5 rounded text-amber-400 hover:text-amber-200 transition-colors"
         aria-label="Cerrar aviso"
       >
-        ×
+        <X size={14} />
       </button>
     </div>
   );
