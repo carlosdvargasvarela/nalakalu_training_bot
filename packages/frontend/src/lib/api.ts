@@ -3,6 +3,7 @@ const GATEWAY = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:3001";
 export interface Reference {
   documentId: string;
   section: string;
+  updatedAt: string;
 }
 
 export interface ChatMessage {
@@ -61,5 +62,23 @@ export async function fetchRecentUpdates(): Promise<RecentUpdate[]> {
     return res.json();
   } catch {
     return [];
+  }
+}
+
+export async function sendFeedback(
+  sessionId: string,
+  question: string,
+  answer: string,
+  rating: "up" | "down",
+  documentIds: string[]
+): Promise<void> {
+  try {
+    await fetch(`${GATEWAY}/api/chat/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, question, answer, rating, documentIds }),
+    });
+  } catch {
+    // señal opcional — no bloquea la UI si falla la red
   }
 }
