@@ -73,4 +73,28 @@ export async function chatRoutes(app: FastifyInstance) {
     const doc = JSON.parse(parseToolResult(result)) as unknown;
     reply.send(doc);
   });
+
+  app.post<{
+    Body: {
+      sessionId: string;
+      question: string;
+      answer: string;
+      rating: "up" | "down";
+      documentIds: string[];
+    };
+  }>("/chat/feedback", async (request, reply) => {
+    const { sessionId, question, answer, rating, documentIds } = request.body;
+    const docsClient = await getDocumentsClient();
+    await docsClient.callTool({
+      name: "record_feedback",
+      arguments: {
+        session_id: sessionId,
+        question,
+        answer,
+        rating,
+        document_ids: documentIds,
+      },
+    });
+    reply.send({ ok: true });
+  });
 }

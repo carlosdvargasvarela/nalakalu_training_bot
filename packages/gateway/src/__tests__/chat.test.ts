@@ -55,3 +55,23 @@ describe("POST /api/chat", () => {
     expect(body.sessionId).toBe("sess-1");
   });
 });
+
+describe("POST /api/chat/feedback", () => {
+  it("reenvía el feedback al tool record_feedback", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/chat/feedback",
+      payload: {
+        sessionId: "sess-1",
+        question: "¿Cómo ensamblo el cajón tipo B?",
+        answer: "Paso 1...",
+        rating: "up",
+        documentIds: ["doc-1"],
+      },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.ok).toBe(true);
+  });
+});
