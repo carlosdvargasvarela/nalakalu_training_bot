@@ -24,12 +24,12 @@ export default function UpdateBanner({ updates, onDismiss }: Props) {
   };
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-amber-900/30 border-b border-amber-600/50 text-amber-200 text-sm">
-      <Bell size={14} className="flex-shrink-0 text-amber-400" />
+    <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-b border-amber-300 text-amber-900 text-sm">
+      <Bell size={14} className="flex-shrink-0 text-amber-600" />
       <span className="flex-1">{label}</span>
       <button
         onClick={handleDismiss}
-        className="p-0.5 rounded text-amber-400 hover:text-amber-200 transition-colors"
+        className="p-0.5 rounded text-amber-600 hover:text-amber-800 transition-colors"
         aria-label="Cerrar aviso"
       >
         <X size={14} />

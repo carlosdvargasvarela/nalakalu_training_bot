@@ -26,7 +26,7 @@ export default function DocumentLink({ documentId, section, updatedAt }: Props) 
       onClick={handleOpen}
       className="flex flex-col items-start w-full text-left px-2 py-1.5 rounded-lg hover:bg-app/50 transition-colors"
     >
-      <span className="text-xs text-blue-300 underline">📄 {section}</span>
+      <span className="text-xs text-accent underline">📄 {section}</span>
       <span className="text-[11px] text-muted">{relativeDate(updatedAt)}</span>
     </button>
   );

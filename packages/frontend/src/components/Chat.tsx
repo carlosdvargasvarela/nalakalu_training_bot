@@ -101,13 +101,13 @@ export default function Chat() {
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 bg-surface border-b border-nk-border">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <h1 className="text-white font-bold text-base leading-tight whitespace-nowrap">Nalakalu</h1>
+            <h1 className="font-heading text-primary font-semibold text-lg leading-tight whitespace-nowrap">Nalakalu</h1>
             {activeTag && (
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 text-accent text-xs font-medium">
                 {activeTag}
                 <button
                   onClick={() => setActiveTag(null)}
-                  className="hover:text-white leading-none"
+                  className="hover:text-primary leading-none"
                   aria-label={`Quitar filtro ${activeTag}`}
                 >
                   ×

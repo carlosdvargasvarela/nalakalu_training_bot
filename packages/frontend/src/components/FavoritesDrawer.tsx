@@ -74,7 +74,7 @@ export default function FavoritesDrawer({ open, onClose, onReask }: Props) {
                 </button>
                 <button
                   onClick={() => handleRemove(f.id)}
-                  className="text-xs text-red-400 hover:text-red-300 border border-red-800/50 rounded-lg px-2 transition-colors"
+                  className="text-xs text-red-600 hover:text-red-700 border border-red-300 rounded-lg px-2 transition-colors"
                 >
                   Eliminar
                 </button>

@@ -68,13 +68,13 @@ export default function MessageBubble({
             remarkPlugins={[remarkGfm]}
             components={{
               p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-              strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+              strong: ({ children }) => <strong className="font-semibold text-primary">{children}</strong>,
               em: ({ children }) => <em className="italic text-muted">{children}</em>,
               ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
               ol: ({ children }) => <StepChecklist>{children}</StepChecklist>,
               li: ({ children }) => <>{children}</>,
-              h1: ({ children }) => <h1 className="text-lg font-bold text-white mb-2 mt-3 first:mt-0">{children}</h1>,
-              h2: ({ children }) => <h2 className="text-base font-bold text-white mb-1 mt-3 first:mt-0">{children}</h2>,
+              h1: ({ children }) => <h1 className="font-heading text-lg text-primary mb-2 mt-3 first:mt-0">{children}</h1>,
+              h2: ({ children }) => <h2 className="font-heading text-base text-primary mb-1 mt-3 first:mt-0">{children}</h2>,
               h3: ({ children }) => <h3 className="text-sm font-semibold text-primary mb-1 mt-2 first:mt-0">{children}</h3>,
               code: ({ children }) => <code className="bg-app text-primary rounded px-1 py-0.5 text-sm font-mono">{children}</code>,
               blockquote: ({ children }) => <blockquote className="border-l-2 border-nk-border pl-3 italic text-muted mb-2">{children}</blockquote>,

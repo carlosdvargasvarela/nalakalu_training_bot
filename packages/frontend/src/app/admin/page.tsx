@@ -81,14 +81,14 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-app flex items-center justify-center p-4">
         <div className="bg-surface p-6 rounded-2xl w-full max-w-sm">
-          <h1 className="text-white text-xl font-bold mb-4 text-center">Panel Admin</h1>
+          <h1 className="font-heading text-primary text-xl mb-4 text-center">Panel Admin</h1>
           <input
             type="password"
             placeholder="Clave de acceso"
             value={secret}
             onChange={(e) => setSecret(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            className="w-full bg-elevated text-white rounded-xl px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full bg-elevated text-primary rounded-xl px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             onClick={handleLogin}
@@ -103,23 +103,23 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-app p-4 max-w-2xl mx-auto">
-      <h1 className="text-white text-2xl font-bold mb-6">Gestión de Procedimientos</h1>
+      <h1 className="font-heading text-primary text-2xl mb-6">Gestión de Procedimientos</h1>
 
       <div className="bg-surface rounded-2xl p-4 mb-6">
-        <h2 className="text-white font-semibold mb-3">Subir nuevo procedimiento</h2>
+        <h2 className="font-heading text-primary mb-3">Subir nuevo procedimiento</h2>
         <input
           type="text"
           placeholder="Categoría (ej: Ensamble, Seguridad)"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full bg-elevated text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full bg-elevated text-primary rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-accent"
         />
         <input
           type="text"
           placeholder="Etiquetas: ensamble, seguridad, cajón (separadas por coma)"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
-          className="w-full bg-elevated text-white rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full bg-elevated text-primary rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-accent"
         />
         <input
           ref={fileRef}
@@ -143,7 +143,7 @@ export default function AdminPage() {
             className="bg-surface rounded-xl p-4 flex items-center justify-between"
           >
             <div>
-              <p className="text-white font-medium">{doc.originalName}</p>
+              <p className="text-primary font-medium">{doc.originalName}</p>
               <p className="text-muted text-sm">{doc.category ?? "Sin categoría"}</p>
               {doc.tags && doc.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
@@ -160,7 +160,7 @@ export default function AdminPage() {
             </div>
             <button
               onClick={() => handleDelete(doc.id)}
-              className="text-red-400 hover:text-red-300 text-sm px-3 py-1 border border-red-800 rounded-lg"
+              className="text-red-600 hover:text-red-700 text-sm px-3 py-1 border border-red-300 rounded-lg"
             >
               Desactivar
             </button>

@@ -3,15 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --bg-app:        #0f172a;
-  --bg-surface:    #1e293b;
-  --bg-elevated:   #293548;
-  --bg-input:      #334155;
-  --border:        #334155;
-  --text-primary:  #f1f5f9;
-  --text-muted:    #94a3b8;
-  --text-disabled: #475569;
-  --accent:        #3b82f6;
-  --accent-hover:  #2563eb;
-  --user-bubble:   #1d4ed8;
+  /* Na Lakalú brand palette — Blanco Hueso / Beige / Café / Naranja */
+  --bg-app:        #FFF7EE;
+  --bg-surface:    #E2D2B9;
+  --bg-elevated:   #F0E4D7;
+  --bg-input:      #F7EFE3;
+  --border:        #D8C4A8;
+  --text-primary:  #3D342C;
+  --text-muted:    #8A7A6A;
+  --text-disabled: #C2B29C;
+  --accent:        #A54E1E;
+  --accent-hover:  #86400F;
+  --user-bubble:   #3D342C;
 }
