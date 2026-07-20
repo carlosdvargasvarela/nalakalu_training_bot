@@ -35,3 +35,14 @@ export async function deleteDocument(id: string): Promise<void> {
   const db = getDb();
   await db.query("UPDATE documents SET active = FALSE WHERE id = $1", [id]);
 }
+
+export async function updateDocument(
+  id: string,
+  input: { category: string | null; tags: string[] }
+): Promise<void> {
+  const db = getDb();
+  await db.query(
+    "UPDATE documents SET category = $1, tags = $2 WHERE id = $3 AND active = TRUE",
+    [input.category, input.tags, id]
+  );
+}

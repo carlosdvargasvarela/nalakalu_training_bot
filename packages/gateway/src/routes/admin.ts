@@ -36,6 +36,23 @@ export async function adminRoutes(app: FastifyInstance) {
     }
   );
 
+  app.patch<{ Params: { id: string }; Body: { category: string | null; tags: string[] } }>(
+    "/documents/:id",
+    { preHandler: requireAdmin },
+    async (request, reply) => {
+      const adminClient = await getAdminClient();
+      await adminClient.callTool({
+        name: "update_document",
+        arguments: {
+          id: request.params.id,
+          category: request.body.category ?? undefined,
+          tags: request.body.tags,
+        },
+      });
+      reply.send({ ok: true });
+    }
+  );
+
   app.post("/documents", { preHandler: requireAdmin }, async (request, reply) => {
     const data = await request.file({ limits: { fileSize: 20 * 1024 * 1024 } });
     if (!data) return reply.status(400).send({ error: "Archivo requerido" });

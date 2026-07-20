@@ -57,6 +57,13 @@ export async function chatRoutes(app: FastifyInstance) {
     reply.send(tags);
   });
 
+  app.get("/chat/categories", async (_request, reply) => {
+    const docsClient = await getDocumentsClient();
+    const result = await docsClient.callTool({ name: "list_categories", arguments: {} });
+    const categories = JSON.parse(parseToolResult(result)) as string[];
+    reply.send(categories);
+  });
+
   app.get("/chat/recent-updates", async (_request, reply) => {
     const docsClient = await getDocumentsClient();
     const result = await docsClient.callTool({ name: "get_recent_updates", arguments: {} });

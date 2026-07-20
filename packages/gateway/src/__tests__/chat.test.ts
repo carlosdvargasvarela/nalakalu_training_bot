@@ -57,6 +57,20 @@ describe("POST /api/chat", () => {
   });
 });
 
+describe("GET /api/chat/categories", () => {
+  it("retorna las categorías del tool list_categories", async () => {
+    mockDocsCallTool.mockResolvedValueOnce({
+      content: [{ type: "text", text: JSON.stringify(["Ensamble", "Seguridad"]) }],
+    });
+
+    const res = await app.inject({ method: "GET", url: "/api/chat/categories" });
+
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body)).toEqual(["Ensamble", "Seguridad"]);
+    expect(mockDocsCallTool).toHaveBeenCalledWith({ name: "list_categories", arguments: {} });
+  });
+});
+
 describe("POST /api/chat/feedback", () => {
   it("reenvía el feedback al tool record_feedback", async () => {
     const res = await app.inject({

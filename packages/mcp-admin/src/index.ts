@@ -5,7 +5,7 @@ dotenv.config({ path: resolve(dirname(fileURLToPath(import.meta.url)), "../../..
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { listDocuments, deleteDocument } from "./tools.js";
+import { listDocuments, deleteDocument, updateDocument } from "./tools.js";
 
 const server = new Server(
   { name: "nalakalu-admin-mcp", version: "0.1.0" },
@@ -31,6 +31,19 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ["id"],
       },
     },
+    {
+      name: "update_document",
+      description: "Actualiza la categoría y tags de un procedimiento",
+      inputSchema: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          category: { type: "string" },
+          tags: { type: "array", items: { type: "string" } },
+        },
+        required: ["id", "tags"],
+      },
+    },
   ],
 }));
 
@@ -43,6 +56,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
   if (name === "delete_document") {
     await deleteDocument(args!.id as string);
+    return { content: [{ type: "text", text: JSON.stringify({ ok: true }) }] };
+  }
+  if (name === "update_document") {
+    await updateDocument(args!.id as string, {
+      category: (args?.category as string | undefined) ?? null,
+      tags: args!.tags as string[],
+    });
     return { content: [{ type: "text", text: JSON.stringify({ ok: true }) }] };
   }
   throw new Error(`Tool desconocida: ${name}`);

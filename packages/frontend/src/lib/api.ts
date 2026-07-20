@@ -53,6 +53,16 @@ export async function fetchTags(): Promise<string[]> {
   }
 }
 
+export async function fetchCategories(): Promise<string[]> {
+  try {
+    const res = await fetch(`${GATEWAY}/api/chat/categories`);
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
 export interface RecentUpdate {
   id: string;
   originalName: string;
