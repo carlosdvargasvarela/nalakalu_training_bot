@@ -15,10 +15,17 @@ vi.mock("../abacus.js", () => ({
 
 vi.mock("../r2.js", () => ({
   getPresignedUrl: vi.fn().mockResolvedValue("https://r2.example.com/doc"),
+  getObjectBuffer: vi.fn().mockResolvedValue(Buffer.from("docx binary")),
 }));
 
-import { searchProcedures, listTags, getRecentUpdates, recordFeedback } from "../tools.js";
+vi.mock("mammoth", () => ({
+  convertToHtml: vi.fn().mockResolvedValue({ value: "<p>contenido convertido</p>" }),
+}));
+
+import { searchProcedures, listTags, getRecentUpdates, recordFeedback, getDocument } from "../tools.js";
 import { queryAbacus } from "../abacus.js";
+import { getObjectBuffer } from "../r2.js";
+import * as mammoth from "mammoth";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -106,6 +113,32 @@ describe("getRecentUpdates", () => {
     expect(docs).toHaveLength(1);
     expect(docs[0].originalName).toBe("nuevo.pdf");
     expect(docs[0].tags).toEqual(["Ensamble"]);
+  });
+});
+
+describe("getDocument", () => {
+  it("PDF — no convierte a HTML, previewHtml es null", async () => {
+    mockQuery.mockResolvedValueOnce({
+      rows: [{ id: "d5", original_name: "proc.pdf", category: "Ensamble", r2_key: "docs/proc.pdf" }],
+    });
+
+    const doc = await getDocument("d5");
+
+    expect(doc.previewHtml).toBeNull();
+    expect(doc.downloadUrl).toBe("https://r2.example.com/doc");
+    expect(getObjectBuffer).not.toHaveBeenCalled();
+  });
+
+  it("docx — convierte el contenido a HTML con mammoth", async () => {
+    mockQuery.mockResolvedValueOnce({
+      rows: [{ id: "d6", original_name: "proc.docx", category: null, r2_key: "docs/proc.docx" }],
+    });
+
+    const doc = await getDocument("d6");
+
+    expect(getObjectBuffer).toHaveBeenCalledWith("docs/proc.docx");
+    expect(mammoth.convertToHtml).toHaveBeenCalledWith({ buffer: Buffer.from("docx binary") });
+    expect(doc.previewHtml).toBe("<p>contenido convertido</p>");
   });
 });
 

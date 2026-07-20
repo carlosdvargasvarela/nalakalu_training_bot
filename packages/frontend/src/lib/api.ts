@@ -31,11 +31,16 @@ export async function sendMessage(
   return res.json();
 }
 
-export async function getDocumentUrl(id: string): Promise<string> {
+export interface DocumentPreview {
+  originalName: string;
+  downloadUrl: string;
+  previewHtml: string | null;
+}
+
+export async function getDocumentPreview(id: string): Promise<DocumentPreview> {
   const res = await fetch(`${GATEWAY}/api/chat/document/${id}`);
   if (!res.ok) throw new Error("Documento no encontrado");
-  const data = await res.json();
-  return data.downloadUrl;
+  return res.json();
 }
 
 export async function fetchTags(): Promise<string[]> {

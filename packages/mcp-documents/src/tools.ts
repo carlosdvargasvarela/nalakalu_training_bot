@@ -1,6 +1,6 @@
 import { getDb } from "@nalakalu/db";
 import { queryAbacus, AbacusQueryResult } from "./abacus.js";
-import { getPresignedUrl } from "./r2.js";
+import { getPresignedUrl, getObjectBuffer } from "./r2.js";
 
 interface DocRow {
   id: string;
@@ -62,6 +62,7 @@ export async function getDocument(id: string): Promise<{
   originalName: string;
   category: string | null;
   downloadUrl: string;
+  previewHtml: string | null;
 }> {
   const db = getDb();
   const { rows } = await db.query<{
@@ -75,11 +76,21 @@ export async function getDocument(id: string): Promise<{
   );
   if (!rows[0]) throw new Error(`Documento ${id} no encontrado`);
   const url = await getPresignedUrl(rows[0].r2_key);
+
+  let previewHtml: string | null = null;
+  if (rows[0].original_name.toLowerCase().endsWith(".docx")) {
+    const buffer = await getObjectBuffer(rows[0].r2_key);
+    const mammoth = await import("mammoth");
+    const result = await mammoth.convertToHtml({ buffer });
+    previewHtml = result.value;
+  }
+
   return {
     id: rows[0].id,
     originalName: rows[0].original_name,
     category: rows[0].category,
     downloadUrl: url,
+    previewHtml,
   };
 }
 

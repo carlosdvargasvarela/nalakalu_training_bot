@@ -41,3 +41,11 @@ export async function deleteFromR2(key: string): Promise<void> {
   const bucket = process.env.R2_BUCKET_NAME!;
   await getClient().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 }
+
+export async function getObjectBuffer(key: string): Promise<Buffer> {
+  const bucket = process.env.R2_BUCKET_NAME!;
+  const { Body } = await getClient().send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of Body as AsyncIterable<Uint8Array>) chunks.push(chunk);
+  return Buffer.concat(chunks);
+}
