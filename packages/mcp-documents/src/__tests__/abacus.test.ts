@@ -48,4 +48,23 @@ describe("queryAbacus (Claude)", () => {
     expect(result.references).toHaveLength(0);
     expect(mockCreate).not.toHaveBeenCalled();
   });
+
+  it("incluye el historial de la conversación como turnos previos", async () => {
+    mockCreate.mockResolvedValueOnce({
+      content: [{ type: "text", text: "Para el cajón tipo C es distinto..." }],
+    });
+
+    await queryAbacus("¿y para el tipo C?", mockDocs, [
+      { role: "user", content: "¿Cómo ensamblo el cajón tipo B?" },
+      { role: "assistant", content: "El cajón tipo B se ensambla en 3 pasos..." },
+    ]);
+
+    const call = mockCreate.mock.calls[0][0];
+    expect(call.messages[0]).toEqual({ role: "user", content: "¿Cómo ensamblo el cajón tipo B?" });
+    expect(call.messages[1]).toEqual({
+      role: "assistant",
+      content: "El cajón tipo B se ensambla en 3 pasos...",
+    });
+    expect(call.messages[2].content).toContain("¿y para el tipo C?");
+  });
 });

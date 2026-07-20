@@ -45,7 +45,7 @@ describe("searchProcedures", () => {
     const sql: string = mockQuery.mock.calls[0][0];
     expect(sql).not.toContain("tags @>");
     expect(sql).toContain("updated_at");
-    expect(queryAbacus).toHaveBeenCalledWith("¿cómo ensamblar?", expect.any(Array));
+    expect(queryAbacus).toHaveBeenCalledWith("¿cómo ensamblar?", expect.any(Array), []);
   });
 
   it("busca con tags — incluye filtro tags @> en la query", async () => {
@@ -62,6 +62,17 @@ describe("searchProcedures", () => {
     const params = mockQuery.mock.calls[0][1];
     expect(params).toContain("¿qué EPP usar?");
     expect(params).toContainEqual(["Seguridad"]);
+  });
+
+  it("pasa el historial de la conversación a queryAbacus", async () => {
+    mockQuery.mockResolvedValueOnce({
+      rows: [{ id: "d1", original_name: "proc.pdf", category: "Ensamble", content: "contenido" }],
+    });
+    const history = [{ role: "user" as const, content: "¿Cómo ensamblo el cajón tipo B?" }];
+
+    await searchProcedures("¿y el tipo C?", undefined, history);
+
+    expect(queryAbacus).toHaveBeenCalledWith("¿y el tipo C?", expect.any(Array), history);
   });
 
   it("con tags pero sin docs — hace fallback sin filtro y retorna tagFallback:true", async () => {

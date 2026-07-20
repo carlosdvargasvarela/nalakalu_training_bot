@@ -12,8 +12,14 @@ const { mockDocsCallTool, mockWorkersCallTool } = vi.hoisted(() => ({
       },
     ],
   }),
-  mockWorkersCallTool: vi.fn().mockResolvedValue({
-    content: [{ type: "text", text: JSON.stringify({ id: "sess-1", workerId: null }) }],
+  mockWorkersCallTool: vi.fn().mockImplementation(async (call: { name: string }) => {
+    if (call.name === "get_history") {
+      return { content: [{ type: "text", text: JSON.stringify([]) }] };
+    }
+    if (call.name === "save_message") {
+      return { content: [{ type: "text", text: JSON.stringify({ ok: true }) }] };
+    }
+    return { content: [{ type: "text", text: JSON.stringify({ id: "sess-1", workerId: null }) }] };
   }),
 }));
 
@@ -42,6 +48,27 @@ describe("POST /api/chat", () => {
     expect(body.answer).toContain("cajón tipo B");
     expect(body.references).toHaveLength(1);
     expect(body.sessionId).toBe("sess-1");
+
+    expect(mockWorkersCallTool).toHaveBeenCalledWith({
+      name: "get_history",
+      arguments: { session_id: "sess-1" },
+    });
+    expect(mockWorkersCallTool).toHaveBeenCalledWith({
+      name: "save_message",
+      arguments: { session_id: "sess-1", role: "user", content: "¿Cómo ensamblo el cajón tipo B?" },
+    });
+    expect(mockWorkersCallTool).toHaveBeenCalledWith({
+      name: "save_message",
+      arguments: {
+        session_id: "sess-1",
+        role: "assistant",
+        content: "El ensamble del cajón tipo B requiere 3 pasos...",
+      },
+    });
+    expect(mockDocsCallTool).toHaveBeenCalledWith({
+      name: "search_procedures",
+      arguments: { query: "¿Cómo ensamblo el cajón tipo B?", history: [] },
+    });
   });
 
   it("crea nueva sesión si no se pasa sessionId", async () => {

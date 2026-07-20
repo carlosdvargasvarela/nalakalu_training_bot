@@ -26,8 +26,19 @@ export async function chatRoutes(app: FastifyInstance) {
       currentSessionId = session.id as string;
     }
 
+    const historyResult = await workersClient.callTool({
+      name: "get_history",
+      arguments: { session_id: currentSessionId },
+    });
+    const history = JSON.parse(parseToolResult(historyResult)) as unknown[];
+
+    await workersClient.callTool({
+      name: "save_message",
+      arguments: { session_id: currentSessionId, role: "user", content: message },
+    });
+
     const docsClient = await getDocumentsClient();
-    const searchArgs: Record<string, unknown> = { query: message };
+    const searchArgs: Record<string, unknown> = { query: message, history };
     if (tag_context && tag_context.length > 0) {
       searchArgs.tags = tag_context;
     }
@@ -41,6 +52,11 @@ export async function chatRoutes(app: FastifyInstance) {
       references: unknown[];
       tagFallback?: boolean;
     };
+
+    await workersClient.callTool({
+      name: "save_message",
+      arguments: { session_id: currentSessionId, role: "assistant", content: parsed.answer },
+    });
 
     reply.send({
       answer: parsed.answer,

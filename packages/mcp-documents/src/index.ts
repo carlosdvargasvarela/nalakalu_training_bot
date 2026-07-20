@@ -16,6 +16,7 @@ import {
   getRecentUpdates,
   recordFeedback,
 } from "./tools.js";
+import type { ConversationTurn } from "./abacus.js";
 
 const server = new Server(
   { name: "nalakalu-documents-mcp", version: "0.2.0" },
@@ -35,6 +36,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             type: "array",
             items: { type: "string" },
             description: "Filtrar por tags (opcional)",
+          },
+          history: {
+            type: "array",
+            description: "Turnos previos de la conversación (opcional)",
+            items: {
+              type: "object",
+              properties: {
+                role: { type: "string", enum: ["user", "assistant"] },
+                content: { type: "string" },
+              },
+            },
           },
         },
         required: ["query"],
@@ -96,7 +108,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (name === "search_procedures") {
     const result = await searchProcedures(
       args!.query as string,
-      args?.tags as string[] | undefined
+      args?.tags as string[] | undefined,
+      args?.history as ConversationTurn[] | undefined
     );
     return { content: [{ type: "text", text: JSON.stringify(result) }] };
   }

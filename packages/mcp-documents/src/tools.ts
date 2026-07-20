@@ -1,5 +1,5 @@
 import { getDb } from "@nalakalu/db";
-import { queryAbacus, AbacusQueryResult } from "./abacus.js";
+import { queryAbacus, AbacusQueryResult, ConversationTurn } from "./abacus.js";
 import { getPresignedUrl, getObjectBuffer } from "./r2.js";
 
 interface DocRow {
@@ -44,17 +44,18 @@ async function fetchDocs(query: string, tags?: string[]): Promise<DocRow[]> {
 
 export async function searchProcedures(
   query: string,
-  tags?: string[]
+  tags?: string[],
+  history: ConversationTurn[] = []
 ): Promise<SearchResult> {
   let rows = await fetchDocs(query, tags);
 
   if (tags && tags.length > 0 && rows.length === 0) {
     rows = await fetchDocs(query);
-    const result = await queryAbacus(query, rows);
+    const result = await queryAbacus(query, rows, history);
     return { ...result, tagFallback: true };
   }
 
-  return queryAbacus(query, rows);
+  return queryAbacus(query, rows, history);
 }
 
 export async function getDocument(id: string): Promise<{

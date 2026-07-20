@@ -15,9 +15,15 @@ interface DocContext {
   updated_at: Date;
 }
 
+export interface ConversationTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export async function queryAbacus(
   question: string,
-  docs: DocContext[]
+  docs: DocContext[],
+  history: ConversationTurn[] = []
 ): Promise<AbacusQueryResult> {
   if (docs.length === 0) {
     return {
@@ -44,6 +50,7 @@ REGLAS:
 - Responde ÚNICAMENTE con información de los procedimientos proporcionados.
 - Si la respuesta no está en los procedimientos, dilo claramente en una sola oración.
 - Usa lenguaje sencillo y directo, apropiado para trabajadores de planta.
+- Si la pregunta hace referencia a algo mencionado antes en la conversación (ej. "¿y para el tipo C?"), usá el historial para entender a qué se refiere.
 
 FORMATO (usa siempre Markdown):
 - Pasos numerados con **listas ordenadas** para procedimientos secuenciales.
@@ -52,6 +59,7 @@ FORMATO (usa siempre Markdown):
 - Encabezados (##) solo si la respuesta cubre más de un tema distinto.
 - Sin introducción innecesaria — ve directo al punto.`,
     messages: [
+      ...history.map((h) => ({ role: h.role, content: h.content })),
       {
         role: "user",
         content: `PROCEDIMIENTOS DISPONIBLES:
