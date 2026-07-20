@@ -1,24 +1,25 @@
 import { describe, it, expect, vi } from "vitest";
 
+const { mockDocsCallTool, mockWorkersCallTool } = vi.hoisted(() => ({
+  mockDocsCallTool: vi.fn().mockResolvedValue({
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify({
+          answer: "El ensamble del cajón tipo B requiere 3 pasos...",
+          references: [{ documentId: "doc-1", section: "P-047" }],
+        }),
+      },
+    ],
+  }),
+  mockWorkersCallTool: vi.fn().mockResolvedValue({
+    content: [{ type: "text", text: JSON.stringify({ id: "sess-1", workerId: null }) }],
+  }),
+}));
+
 vi.mock("../mcp-client.js", () => ({
-  getDocumentsClient: vi.fn().mockResolvedValue({
-    callTool: vi.fn().mockResolvedValue({
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify({
-            answer: "El ensamble del cajón tipo B requiere 3 pasos...",
-            references: [{ documentId: "doc-1", section: "P-047" }],
-          }),
-        },
-      ],
-    }),
-  }),
-  getWorkersClient: vi.fn().mockResolvedValue({
-    callTool: vi.fn().mockResolvedValue({
-      content: [{ type: "text", text: JSON.stringify({ id: "sess-1", workerId: null }) }],
-    }),
-  }),
+  getDocumentsClient: vi.fn().mockResolvedValue({ callTool: mockDocsCallTool }),
+  getWorkersClient: vi.fn().mockResolvedValue({ callTool: mockWorkersCallTool }),
 }));
 
 import Fastify from "fastify";
@@ -73,5 +74,15 @@ describe("POST /api/chat/feedback", () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
     expect(body.ok).toBe(true);
+    expect(mockDocsCallTool).toHaveBeenCalledWith({
+      name: "record_feedback",
+      arguments: {
+        session_id: "sess-1",
+        question: "¿Cómo ensamblo el cajón tipo B?",
+        answer: "Paso 1...",
+        rating: "up",
+        document_ids: ["doc-1"],
+      },
+    });
   });
 });
