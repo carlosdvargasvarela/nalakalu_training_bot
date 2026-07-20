@@ -17,7 +17,7 @@ vi.mock("../r2.js", () => ({
   getPresignedUrl: vi.fn().mockResolvedValue("https://r2.example.com/doc"),
 }));
 
-import { searchProcedures, listTags, getRecentUpdates } from "../tools.js";
+import { searchProcedures, listTags, getRecentUpdates, recordFeedback } from "../tools.js";
 import { queryAbacus } from "../abacus.js";
 
 beforeEach(() => {
@@ -106,5 +106,25 @@ describe("getRecentUpdates", () => {
     expect(docs).toHaveLength(1);
     expect(docs[0].originalName).toBe("nuevo.pdf");
     expect(docs[0].tags).toEqual(["Ensamble"]);
+  });
+});
+
+describe("recordFeedback", () => {
+  it("inserta el feedback con los campos correctos", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [] });
+
+    await recordFeedback({
+      sessionId: "sess-1",
+      question: "¿Cómo ensamblo el cajón tipo B?",
+      answer: "Paso 1...",
+      rating: "up",
+      documentIds: ["doc-1"],
+    });
+
+    expect(mockQuery).toHaveBeenCalledOnce();
+    const sql: string = mockQuery.mock.calls[0][0];
+    const params = mockQuery.mock.calls[0][1];
+    expect(sql).toContain("INSERT INTO message_feedback");
+    expect(params).toEqual(["sess-1", "¿Cómo ensamblo el cajón tipo B?", "Paso 1...", "up", ["doc-1"]]);
   });
 });

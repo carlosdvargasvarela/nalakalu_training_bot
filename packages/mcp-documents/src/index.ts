@@ -14,6 +14,7 @@ import {
   listCategories,
   listTags,
   getRecentUpdates,
+  recordFeedback,
 } from "./tools.js";
 
 const server = new Server(
@@ -71,6 +72,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         },
       },
     },
+    {
+      name: "record_feedback",
+      description: "Guarda el feedback (👍/👎) de una respuesta del asistente",
+      inputSchema: {
+        type: "object",
+        properties: {
+          session_id: { type: "string" },
+          question: { type: "string" },
+          answer: { type: "string" },
+          rating: { type: "string", enum: ["up", "down"] },
+          document_ids: { type: "array", items: { type: "string" } },
+        },
+        required: ["session_id", "question", "answer", "rating", "document_ids"],
+      },
+    },
   ],
 }));
 
@@ -103,6 +119,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (name === "get_recent_updates") {
     const docs = await getRecentUpdates(args?.since_hours as number | undefined);
     return { content: [{ type: "text", text: JSON.stringify(docs) }] };
+  }
+
+  if (name === "record_feedback") {
+    await recordFeedback({
+      sessionId: args!.session_id as string,
+      question: args!.question as string,
+      answer: args!.answer as string,
+      rating: args!.rating as "up" | "down",
+      documentIds: args!.document_ids as string[],
+    });
+    return { content: [{ type: "text", text: JSON.stringify({ ok: true }) }] };
   }
 
   throw new Error(`Tool desconocida: ${name}`);

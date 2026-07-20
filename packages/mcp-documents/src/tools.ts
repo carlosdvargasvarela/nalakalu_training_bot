@@ -131,3 +131,18 @@ export async function getRecentUpdates(sinceHours = 24): Promise<RecentUpdate[]>
     updatedAt: r.updated_at.toISOString(),
   }));
 }
+
+export async function recordFeedback(input: {
+  sessionId: string;
+  question: string;
+  answer: string;
+  rating: "up" | "down";
+  documentIds: string[];
+}): Promise<void> {
+  const db = getDb();
+  await db.query(
+    `INSERT INTO message_feedback (session_id, question, answer, rating, document_ids)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [input.sessionId, input.question, input.answer, input.rating, input.documentIds]
+  );
+}
