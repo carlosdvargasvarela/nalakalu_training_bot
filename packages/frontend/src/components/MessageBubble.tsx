@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ThumbsUp, ThumbsDown, Star } from "lucide-react";
 import DocumentLink from "./DocumentLink";
 import StepChecklist from "./StepChecklist";
 import type { Reference } from "@/lib/api";
@@ -9,6 +13,8 @@ interface Props {
   content: string;
   references?: Reference[];
   textLarge?: boolean;
+  onFeedback?: (rating: "up" | "down") => void;
+  onFavorite?: () => void;
 }
 
 export function LoadingBubble() {
@@ -28,9 +34,18 @@ export function LoadingBubble() {
   );
 }
 
-export default function MessageBubble({ role, content, references, textLarge }: Props) {
+export default function MessageBubble({
+  role,
+  content,
+  references,
+  textLarge,
+  onFeedback,
+  onFavorite,
+}: Props) {
   const isUser = role === "user";
   const textClass = textLarge ? "text-lg" : "text-base";
+  const [rated, setRated] = useState<"up" | "down" | null>(null);
+  const [favorited, setFavorited] = useState(false);
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start items-end gap-2"} mb-3`}>
@@ -71,8 +86,61 @@ export default function MessageBubble({ role, content, references, textLarge }: 
         {references && references.length > 0 && (
           <div className="mt-2 border-t border-nk-border pt-2 space-y-1">
             {references.map((ref) => (
-              <DocumentLink key={ref.documentId} documentId={ref.documentId} section={ref.section} />
+              <DocumentLink
+                key={ref.documentId}
+                documentId={ref.documentId}
+                section={ref.section}
+                updatedAt={ref.updatedAt}
+              />
             ))}
+          </div>
+        )}
+        {!isUser && (onFeedback || onFavorite) && (
+          <div className="flex items-center gap-1 mt-2 pt-2 border-t border-nk-border/50">
+            {onFeedback && (
+              <>
+                <button
+                  onClick={() => {
+                    setRated("up");
+                    onFeedback("up");
+                  }}
+                  disabled={rated !== null}
+                  className={`p-1 rounded transition-colors ${
+                    rated === "up" ? "text-accent" : "text-muted hover:text-primary"
+                  }`}
+                  aria-label="Respuesta útil"
+                >
+                  <ThumbsUp size={14} />
+                </button>
+                <button
+                  onClick={() => {
+                    setRated("down");
+                    onFeedback("down");
+                  }}
+                  disabled={rated !== null}
+                  className={`p-1 rounded transition-colors ${
+                    rated === "down" ? "text-accent" : "text-muted hover:text-primary"
+                  }`}
+                  aria-label="Respuesta no útil"
+                >
+                  <ThumbsDown size={14} />
+                </button>
+              </>
+            )}
+            {onFavorite && (
+              <button
+                onClick={() => {
+                  setFavorited(true);
+                  onFavorite();
+                }}
+                disabled={favorited}
+                className={`flex items-center gap-1 text-xs ml-1 transition-colors ${
+                  favorited ? "text-yellow-400" : "text-muted hover:text-yellow-400"
+                }`}
+              >
+                <Star size={14} /> {favorited ? "Guardado" : "Guardar"}
+              </button>
+            )}
           </div>
         )}
       </div>
