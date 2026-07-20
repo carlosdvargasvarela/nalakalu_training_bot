@@ -37,6 +37,7 @@ describe("searchProcedures", () => {
     expect(mockQuery).toHaveBeenCalledOnce();
     const sql: string = mockQuery.mock.calls[0][0];
     expect(sql).not.toContain("tags @>");
+    expect(sql).toContain("updated_at");
     expect(queryAbacus).toHaveBeenCalledWith("¿cómo ensamblar?", expect.any(Array));
   });
 

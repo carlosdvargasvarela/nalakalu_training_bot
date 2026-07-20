@@ -7,6 +7,7 @@ interface DocRow {
   original_name: string;
   category: string | null;
   content: string;
+  updated_at: Date;
 }
 
 export interface SearchResult extends AbacusQueryResult {
@@ -24,7 +25,7 @@ async function fetchDocs(query: string, tags?: string[]): Promise<DocRow[]> {
   }
 
   const { rows } = await db.query<DocRow>(
-    `SELECT id, original_name, category, coalesce(content, '') AS content
+    `SELECT id, original_name, category, updated_at, coalesce(content, '') AS content
      FROM documents
      WHERE active = TRUE
        AND content IS NOT NULL

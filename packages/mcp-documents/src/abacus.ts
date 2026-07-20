@@ -4,7 +4,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export interface AbacusQueryResult {
   answer: string;
-  references: { documentId: string; section: string }[];
+  references: { documentId: string; section: string; updatedAt: string }[];
 }
 
 interface DocContext {
@@ -12,6 +12,7 @@ interface DocContext {
   original_name: string;
   category: string | null;
   content: string;
+  updated_at: Date;
 }
 
 export async function queryAbacus(
@@ -69,6 +70,7 @@ PREGUNTA: ${question}`,
     references: docs.map((d) => ({
       documentId: d.id,
       section: d.original_name,
+      updatedAt: d.updated_at.toISOString(),
     })),
   };
 }
