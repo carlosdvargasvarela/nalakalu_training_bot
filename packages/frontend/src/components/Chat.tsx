@@ -10,6 +10,7 @@ import HistoryDrawer from "./HistoryDrawer";
 import { Clock, Star, Type } from "lucide-react";
 import {
   sendMessage,
+  sendFeedback,
   fetchTags,
   fetchRecentUpdates,
   type ChatMessage,
@@ -45,7 +46,6 @@ export default function Chat() {
   const [showHistory, setShowHistory] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const lastAssistantIdx = messages.map((m) => m.role).lastIndexOf("assistant");
 
   useEffect(() => {
     setTextSizeState(getTextSize());
@@ -93,17 +93,6 @@ export default function Chat() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFavoriteStar = () => {
-    const lastAssistant = messages[lastAssistantIdx];
-    const lastUser = [...messages].slice(0, lastAssistantIdx).reverse().find((m) => m.role === "user");
-    if (!lastAssistant || !lastUser) return;
-    addFavorite({
-      question: lastUser.content,
-      answer: lastAssistant.content,
-      tags: activeTag ? [activeTag] : [],
-    });
   };
 
   return (
@@ -164,28 +153,45 @@ export default function Chat() {
 
         {/* Mensajes */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
-          {messages.map((msg, i) => (
-            <MessageBubble
-              key={i}
-              role={msg.role}
-              content={msg.content}
-              references={msg.references}
-              textLarge={textSize === "lg"}
-            />
-          ))}
+          {messages.map((msg, i) => {
+            const precedingUser =
+              msg.role === "assistant" && i > 0
+                ? [...messages].slice(0, i).reverse().find((m) => m.role === "user")
+                : undefined;
+
+            return (
+              <MessageBubble
+                key={i}
+                role={msg.role}
+                content={msg.content}
+                references={msg.references}
+                textLarge={textSize === "lg"}
+                onFeedback={
+                  precedingUser
+                    ? (rating) =>
+                        sendFeedback(
+                          sessionId ?? "",
+                          precedingUser.content,
+                          msg.content,
+                          rating,
+                          (msg.references ?? []).map((r) => r.documentId)
+                        )
+                    : undefined
+                }
+                onFavorite={
+                  precedingUser
+                    ? () =>
+                        addFavorite({
+                          question: precedingUser.content,
+                          answer: msg.content,
+                          tags: activeTag ? [activeTag] : [],
+                        })
+                    : undefined
+                }
+              />
+            );
+          })}
           {loading && <LoadingBubble />}
-          {/* Botón de favorito para última respuesta del bot */}
-          {!loading && lastAssistantIdx > 0 && (
-            <div className="flex justify-start px-1 -mt-2 mb-2">
-              <button
-                onClick={handleFavoriteStar}
-                className="text-muted hover:text-yellow-400 text-sm transition-colors"
-                title="Guardar en favoritos"
-              >
-                ☆ Guardar respuesta
-              </button>
-            </div>
-          )}
           <div ref={bottomRef} />
         </div>
 
